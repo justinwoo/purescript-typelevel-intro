@@ -20,14 +20,20 @@ foreign import data Red :: Color
 foreign import data Blue :: Color
 foreign import data Green :: Color
 
+-- Color :: Color -> Type
+data ColorProxy (color :: Color) = ColorProxy
+
+redProxy :: ColorProxy Red
+redProxy = ColorProxy
+
 class IsRed (color :: Color) (result :: TP.Boolean) | color -> result
 
 instance isRedRed :: IsRed Red TP.True
-instance isRedBlue :: IsRed Blue TP.False
-instance isRedGreen :: IsRed Green TP.False
--- else instance isRedElse :: IsRed a TP.False
+-- instance isRedBlue :: IsRed Blue TP.False
+-- instance isRedGreen :: IsRed Green TP.False
+else instance isRedElse :: IsRed a TP.False
 
-class Succ (curr :: Symbol) (next :: Symbol)
+class Succ (curr :: Symbol) (next :: Symbol) | curr -> next, next -> curr
 
 instance succ01 :: Succ "zero" "one"
 else instance succ12 :: Succ "one" "two"
@@ -59,15 +65,27 @@ add
   -> TP.SProxy o
 add _ _ = TP.SProxy
 
-class Sub (l :: Symbol) (r :: Symbol) (o :: Symbol) | r -> l o
--- instance zeroSub :: Sub ? ? ?
--- else instance succSub ::
---   ( ?
---   ) => Sub ? ? ?
+resultOfAdd :: TP.SProxy "five"
+resultOfAdd = add (TP.SProxy :: TP.SProxy "three") (TP.SProxy :: TP.SProxy "two")
 
--- subtract
---   :: ??
--- subtract _ _ = TP.SProxy
+class Sub (l :: Symbol) (r :: Symbol) (o :: Symbol) | r -> l o
+instance zeroSub :: Sub l "zero" l
+else instance succSub ::
+  ( Succ l' l
+  , Succ r' r
+  , Sub l' r' o
+  ) => Sub l r o
+
+subtract
+  :: forall l r o
+   . Sub l r o
+  => TP.SProxy l
+  -> TP.SProxy r
+  -> TP.SProxy o
+subtract _ _ = TP.SProxy
+
+resultOfSubtract :: TP.SProxy "three"
+resultOfSubtract = subtract (TP.SProxy :: TP.SProxy "five") (TP.SProxy :: TP.SProxy "two")
 
 main :: Effect Unit
 main = do
