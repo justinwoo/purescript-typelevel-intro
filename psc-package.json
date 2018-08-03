@@ -1,0 +1,10 @@
+{
+  "name": "purescript-typelevel-intro",
+  "set": "280718",
+  "source": "https://github.com/justinwoo/spacchetti.git",
+  "depends": [
+    "console",
+    "prelude",
+    "typelevel-prelude"
+  ]
+}
